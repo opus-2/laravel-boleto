@@ -23,12 +23,12 @@ class Santander extends AbstractRetorno implements RetornoCnab400
     private $ocorrencias = [
         '01' => 'Título não existe',
         '02' => 'Entrada título confirmada',
-        '03' => 'Entrada título rejeitada',
+		'03' => 'Entrada título rejeitada',
         '06' => 'Liquidação',
         '07' => 'Liquidação por conta',
         '08' => 'Liquidação por saldo',
         '09' => 'Baixa automática',
-        '10' => 'Títutlo baixado conforme instrução ou por título protestado',
+        '10' => 'Título baixado conforme instrução ou por título protestado',
         '11' => 'Em ser',
         '12' => 'Abatimento concedido',
         '13' => 'Abatimento cancelado',
@@ -39,8 +39,18 @@ class Santander extends AbstractRetorno implements RetornoCnab400
         '21' => 'Entrada em Cartório',
         '22' => 'Retirado de cartório',
         '24' => 'Custas de Cartório',
-        '25' => 'Protestar Título',
-        '26' => 'Sustar Protesto',
+        '25' => 'Título protestado',
+		'26' => 'Sustar Protesto',
+		'35' => 'Título DDA reconhecido pelo pagador',
+		'36' => 'Título DDA não reconhecido pelo pagador',
+		'37' => 'Título DDA recusado pela CIP',
+		'38' => 'Não protestar',
+		'39' => 'Espécie de título não permite a instrução',
+		'61' => 'Confirmação de alteração do valor nominal do título',
+		'62' => 'Confirmação de alteração do valor ou percentual mínimo',
+		'63' => 'Confirmação de alteração do valor ou percentual máximo',
+		'93' => 'Baixa operacional enviado pela CIP',
+		'94' => 'Camcelamento da baixa operacional enviada pela CIP'
     ];
 
     /**

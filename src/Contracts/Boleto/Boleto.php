@@ -221,10 +221,11 @@ interface Boleto
 
     /**
      * @param int $default
+     * @param int $tipo
      *
      * @return mixed
      */
-    public function getEspecieDocCodigo($default = 99);
+    public function getEspecieDocCodigo($default = 99, $tipo = 240);
 
     /**
      * @return mixed
@@ -286,4 +287,10 @@ interface Boleto
      * @return array
      */
     static public function parseCampoLivre($campoLivre);
+
+
+    /**
+     * @return mixed
+     */
+    public function getMostrarEnderecoFichaCompensacao();
 }

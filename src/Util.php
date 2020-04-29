@@ -474,10 +474,9 @@ final class Util
     public static function formatCnab($tipo, $valor, $tamanho, $dec = 0, $sFill = '')
     {
         $tipo = self::upper($tipo);
-        $valor = self::upper(self::normalizeChars($valor));
         if (in_array($tipo, array('9', 9, 'N', '9L', 'NL'))) {
-            if ($tipo == '9L' || $tipo == 'NL') {
-                $valor = self::onlyNumbers($valor);
+			if ($tipo == '9L' || $tipo == 'NL') {
+				$valor = self::onlyNumbers($valor);
             }
             $left = '';
             $sFill = 0;
@@ -485,6 +484,7 @@ final class Util
             $valor = ($dec > 0) ? sprintf("%.{$dec}f", $valor) : $valor;
             $valor = str_replace(array(',', '.'), '', $valor);
         } elseif (in_array($tipo, array('A', 'X'))) {
+			$valor = self::upper(self::normalizeChars($valor));
             $left = '-';
             $type = 's';
         } else {

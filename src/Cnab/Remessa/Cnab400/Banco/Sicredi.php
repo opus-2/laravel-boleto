@@ -82,6 +82,37 @@ class Sicredi extends AbstractRemessa implements RemessaContract
     protected $fimArquivo = "\r\n";
 
     /**
+     * Codigo do cliente junto ao banco.
+     *
+     * @var string
+     */
+    protected $codigoCliente;
+
+     /**
+     * Retorna o codigo do cliente.
+     *
+     * @return mixed
+     */
+    public function getCodigoCliente()
+    {
+        return $this->codigoCliente;
+    }
+
+    /**
+     * Seta o codigo do cliente.
+     *
+     * @param mixed $codigoCliente
+     *
+     * @return Sicredi
+     */
+    public function setCodigoCliente($codigoCliente)
+    {
+        $this->codigoCliente = $codigoCliente;
+
+        return $this;
+    }
+
+    /**
      * @return $this
      * @throws \Exception
      */
@@ -94,7 +125,7 @@ class Sicredi extends AbstractRemessa implements RemessaContract
         $this->add(3, 9, 'REMESSA');
         $this->add(10, 11, '01');
         $this->add(12, 26, Util::formatCnab('X', 'COBRANCA', 15));
-        $this->add(27, 31, Util::formatCnab('9', $this->getConta(), 5));
+        $this->add(27, 31, Util::formatCnab('9', $this->getCodigoCliente(), 5));
         $this->add(32, 45, Util::formatCnab('9L', $this->getBeneficiario()->getDocumento(), 14, 0, 0));
         $this->add(46, 76, '');
         $this->add(77, 79, $this->getCodigoBanco());
@@ -151,10 +182,10 @@ class Sicredi extends AbstractRemessa implements RemessaContract
             $this->add(109, 110, self::OCORRENCIA_BAIXA); // BAIXA
         }
         if ($boleto->getStatus() == $boleto::STATUS_ALTERACAO) {
-            $this->add(109, 110, self::OCORRENCIA_ALT_VENCIMENTO); // ALTERAR VENCIMENTO
+            $this->add(109, 110, self::OCORRENCIA_ALT_OUTROS_DADOS); // ALTERAR OUTROS DADOS (Endereço, etc.)
         }
         if ($boleto->getStatus() == $boleto::STATUS_ALTERACAO_DATA) {
-            $this->add(109, 110, self::OCORRENCIA_ALT_VENCIMENTO);
+            $this->add(109, 110, self::OCORRENCIA_ALT_VENCIMENTO); // ALTERAR VENCIMENTO
         }
         if ($boleto->getStatus() == $boleto::STATUS_CUSTOM) {
             $this->add(109, 110, sprintf('%2.02s', $boleto->getComando()));
@@ -163,7 +194,7 @@ class Sicredi extends AbstractRemessa implements RemessaContract
         $this->add(121, 126, $boleto->getDataVencimento()->format('dmy'));
         $this->add(127, 139, Util::formatCnab('9', $boleto->getValor(), 13, 2));
         $this->add(140, 148, '');
-        $this->add(149, 149, $boleto->getEspecieDocCodigo('A'));
+        $this->add(149, 149, $boleto->getEspecieDocCodigo('A', 400));
         $this->add(150, 150, $boleto->getAceite());
         $this->add(151, 156, $boleto->getDataDocumento()->format('dmy'));
         $this->add(157, 158, self::INSTRUCAO_SEM);
@@ -219,7 +250,7 @@ class Sicredi extends AbstractRemessa implements RemessaContract
         $this->add(1, 1, '9');
         $this->add(2, 2, '1');
         $this->add(3, 5, $this->getCodigoBanco());
-        $this->add(6, 10, $this->getConta());
+        $this->add(6, 10, $this->getCodigoCliente());
         $this->add(11, 394, '');
         $this->add(395, 400, Util::formatCnab('9', $this->getCount(), 6));
 

@@ -1,4 +1,5 @@
 <?php
+
 namespace Eduardokum\LaravelBoleto\Cnab\Retorno\Cnab400;
 
 use Carbon\Carbon;
@@ -7,6 +8,7 @@ use Eduardokum\LaravelBoleto\Contracts\Cnab\Retorno\Cnab400\Detalhe as DetalheCo
 
 class Detalhe implements DetalheContract
 {
+
     use MagicTrait;
 
     /**
@@ -26,6 +28,10 @@ class Detalhe implements DetalheContract
      * @var string
      */
     protected $numeroControle;
+    /**
+     * @var string
+     */
+    protected $codigoLiquidacao;
     /**
      * @var string
      */
@@ -58,6 +64,10 @@ class Detalhe implements DetalheContract
      * @var string
      */
     protected $valorTarifa;
+    /**
+     * @var string
+     */
+    protected $valorOutrasDespesas;
     /**
      * @var string
      */
@@ -96,7 +106,7 @@ class Detalhe implements DetalheContract
     }
 
     /**
-     * @param string $nossoNumero
+     * @param string $carteira
      *
      * @return Detalhe
      */
@@ -168,13 +178,37 @@ class Detalhe implements DetalheContract
     }
 
     /**
+     * Getter for codigoLiquidacao
+     *
+     * @return string
+     */
+    public function getCodigoLiquidacao()
+    {
+        return $this->codigoLiquidacao;
+    }
+
+    /**
+     * Setter for codigoLiquidacao
+     *
+     * @param string $codigoLiquidacao
+     *
+     * @return Detalhe
+     */
+    public function setCodigoLiquidacao($codigoLiquidacao)
+    {
+        $this->codigoLiquidacao = $codigoLiquidacao;
+
+        return $this;
+    }
+
+    /**
      * @return boolean
      */
     public function hasOcorrencia()
     {
         $ocorrencias = func_get_args();
 
-        if (count($ocorrencias) == 0 && !empty($this->getOcorrencia())) {
+        if (count($ocorrencias) == 0 && ! empty($this->getOcorrencia())) {
             return true;
         }
 
@@ -257,8 +291,8 @@ class Detalhe implements DetalheContract
     public function getDataOcorrencia($format = 'd/m/Y')
     {
         return $this->dataOcorrencia instanceof Carbon
-        ? $format === false ? $this->dataOcorrencia : $this->dataOcorrencia->format($format)
-        : null;
+            ? $format === false ? $this->dataOcorrencia : $this->dataOcorrencia->format($format)
+            : null;
     }
 
     /**
@@ -274,6 +308,26 @@ class Detalhe implements DetalheContract
     }
 
     /**
+     * @return string
+     */
+    public function getRejeicao()
+    {
+        return $this->rejeicao;
+    }
+
+    /**
+     * @param string $rejeicao
+     *
+     * @return Detalhe
+     */
+    public function setRejeicao($rejeicao)
+    {
+        $this->rejeicao = $rejeicao;
+
+        return $this;
+    }
+
+    /**
      * @param string $format
      *
      * @return mixed
@@ -281,8 +335,8 @@ class Detalhe implements DetalheContract
     public function getDataVencimento($format = 'd/m/Y')
     {
         return $this->dataVencimento instanceof Carbon
-        ? $format === false ? $this->dataVencimento : $this->dataVencimento->format($format)
-        : null;
+            ? $format === false ? $this->dataVencimento : $this->dataVencimento->format($format)
+            : null;
     }
 
     /**
@@ -305,8 +359,8 @@ class Detalhe implements DetalheContract
     public function getDataCredito($format = 'd/m/Y')
     {
         return $this->dataCredito instanceof Carbon
-        ? $format === false ? $this->dataCredito : $this->dataCredito->format($format)
-        : null;
+            ? $format === false ? $this->dataCredito : $this->dataCredito->format($format)
+            : null;
     }
 
     /**
@@ -357,6 +411,26 @@ class Detalhe implements DetalheContract
     public function setValorTarifa($valorTarifa)
     {
         $this->valorTarifa = $valorTarifa;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getValorOutrasDespesas()
+    {
+        return $this->valorOutrasDespesas;
+    }
+
+    /**
+     * @param string $valorOutrasDespesas
+     *
+     * @return Detalhe
+     */
+    public function setValorOutrasDespesas($valorOutrasDespesas)
+    {
+        $this->valorOutrasDespesas = $valorOutrasDespesas;
 
         return $this;
     }

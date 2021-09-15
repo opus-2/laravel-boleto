@@ -5,6 +5,7 @@ use Eduardokum\LaravelBoleto\Cnab\Retorno\Cnab400\AbstractRetorno;
 use Eduardokum\LaravelBoleto\Contracts\Boleto\Boleto as BoletoContract;
 use Eduardokum\LaravelBoleto\Contracts\Cnab\RetornoCnab400;
 use Eduardokum\LaravelBoleto\Util;
+use Illuminate\Support\Arr;
 
 class Sicredi extends AbstractRetorno implements RetornoCnab400
 {
@@ -186,6 +187,23 @@ class Sicredi extends AbstractRetorno implements RetornoCnab400
     ];
 
     /**
+     * Array com as possiveis ocorrências da Tabela de Motivos das Ocorrências para Tarifas - “28 – Tarifas” Maio 2020 v1.6
+     *
+     * @var array
+     */
+    private $ocorrenciasTarifas = [
+        '03' => 'Tarifa de sustação',
+        '04' => 'Tarifa de protesto',
+        '08' => 'Tarifa de custas de protesto',
+        'A9' => 'Tarifa de manutenção de título vencido',
+        'B1' => 'Tarifa de baixa da carteira',
+        'B3' => 'Tarifa de registro de entrada do título',
+        'F5' => 'Tarifa de entrada na rede Sicredi',
+        'S4' => 'Tarifa de Inclusão Negativação',
+        'S5' => 'Tarifa de Exclusão Negativação',
+    ];
+
+    /**
      * Roda antes dos metodos de processar
      */
     protected function init()
@@ -201,6 +219,12 @@ class Sicredi extends AbstractRetorno implements RetornoCnab400
         ];
     }
 
+    /**
+     * @param array $header
+     *
+     * @return bool
+     * @throws \Exception
+     */
     protected function processarHeader(array $header)
     {
         $this->getHeader()
@@ -215,19 +239,26 @@ class Sicredi extends AbstractRetorno implements RetornoCnab400
         return true;
     }
 
+    /**
+     * @param array $detalhe
+     *
+     * @return bool
+     * @throws \Exception
+     */
     protected function processarDetalhe(array $detalhe)
     {
         $d = $this->detalheAtual();
-		
+
         $d->setNossoNumero($this->rem(48, 62, $detalhe))
             ->setNumeroControle($this->rem(117, 126, $detalhe))
             ->setNumeroDocumento($this->rem(117, 126, $detalhe))
             ->setOcorrencia($this->rem(109, 110, $detalhe))
-            ->setOcorrenciaDescricao(array_get($this->ocorrencias, $d->getOcorrencia(), 'Desconhecida'))
+            ->setOcorrenciaDescricao(Arr::get($this->ocorrencias, $d->getOcorrencia(), 'Desconhecida'))
             ->setDataOcorrencia($this->rem(111, 116, $detalhe))
             ->setDataVencimento($this->rem(147, 152, $detalhe))
             ->setValor(Util::nFloat($this->rem(153, 165, $detalhe), 2, false) / 100)
             ->setValorTarifa(Util::nFloat($this->rem(176, 188, $detalhe), 2, false) / 100)
+            ->setValorOutrasDespesas(Util::nFloat($this->rem(189, 201, $detalhe), 2, false) / 100 )
             ->setValorAbatimento(Util::nFloat($this->rem(228, 240, $detalhe), 2, false) / 100)
             ->setValorDesconto(Util::nFloat($this->rem(241, 253, $detalhe), 2, false) / 100)
             ->setValorRecebido(Util::nFloat($this->rem(254, 266, $detalhe), 2, false) / 100)
@@ -253,10 +284,10 @@ class Sicredi extends AbstractRetorno implements RetornoCnab400
             $d->setOcorrenciaTipo($d::OCORRENCIA_ALTERACAO);
         } elseif ($d->hasOcorrencia('03', '27', '30')) {
             $this->totais['erros']++;
-	    if($d->hasOcorrencia('03')) {
-               if(isset($this->rejeicoes[$this->rem(319, 320, $detalhe)])){
-                  $d->setRejeicao($this->rejeicoes[$this->rem(319, 320, $detalhe)]);
-               }
+            if($d->hasOcorrencia('03')) {
+                if(isset($this->rejeicoes[$this->rem(319, 320, $detalhe)])){
+                    $d->setRejeicao($this->rejeicoes[$this->rem(319, 320, $detalhe)]);
+                }
             }
         } else {
             $d->setOcorrenciaTipo($d::OCORRENCIA_OUTROS);
@@ -265,23 +296,46 @@ class Sicredi extends AbstractRetorno implements RetornoCnab400
         $stringErrors = sprintf('%010s', $this->rem(319, 328, $detalhe));
         $errorsRetorno = str_split($stringErrors, 2) + array_fill(0, 5, '') + array_fill(0, 5, '');
         if (trim($stringErrors, '0') != '') {
-            $error = [];
-            $error[] = array_get($this->rejeicoes, $errorsRetorno[0], '');
-            $error[] = array_get($this->rejeicoes, $errorsRetorno[1], '');
-            $error[] = array_get($this->rejeicoes, $errorsRetorno[2], '');
-            $error[] = array_get($this->rejeicoes, $errorsRetorno[3], '');
-            $error[] = array_get($this->rejeicoes, $errorsRetorno[4], '');
 
-            $error = array_filter($error);
+            //Caso seja detalhe de Tarifa ('28' => 'Tarifa') Buscar as mensagens especificas e não classificar como erro
+            if ($d->hasOcorrencia('28')) {
+                $motivo = [];
+                $motivo[] = Arr::get($this->ocorrenciasTarifas, $errorsRetorno[0], '');
+                $motivo[] = Arr::get($this->ocorrenciasTarifas, $errorsRetorno[1], '');
+                $motivo[] = Arr::get($this->ocorrenciasTarifas, $errorsRetorno[2], '');
+                $motivo[] = Arr::get($this->ocorrenciasTarifas, $errorsRetorno[3], '');
+                $motivo[] = Arr::get($this->ocorrenciasTarifas, $errorsRetorno[4], '');
 
-            if (count($error) > 0){
-                $d->setError(implode(PHP_EOL, $error));
+                $motivo = array_filter($motivo);
+
+                if (count($motivo) > 0){
+                    $d->setRejeicao(implode(PHP_EOL, $motivo));
+                }
+
+            } else {
+                $error = [];
+                $error[] = Arr::get($this->rejeicoes, $errorsRetorno[0], '');
+                $error[] = Arr::get($this->rejeicoes, $errorsRetorno[1], '');
+                $error[] = Arr::get($this->rejeicoes, $errorsRetorno[2], '');
+                $error[] = Arr::get($this->rejeicoes, $errorsRetorno[3], '');
+                $error[] = Arr::get($this->rejeicoes, $errorsRetorno[4], '');
+
+                $error = array_filter($error);
+
+                if (count($error) > 0){
+                    $d->setError(implode(PHP_EOL, $error));
+                }
             }
         }
 
         return true;
     }
 
+    /**
+     * @param array $trailer
+     *
+     * @return bool
+     */
     protected function processarTrailer(array $trailer)
     {
         $this->getTrailer()

@@ -27,6 +27,11 @@ class Html implements HtmlContract
      */
     private $blade = null;
 
+	/**
+	 * @var string
+	 */
+	protected $viewScript = null;
+
     /**
      * @return \Illuminate\View\Factory
      * @throws \Exception
@@ -175,7 +180,7 @@ class Html implements HtmlContract
             throw new \Exception('Nenhum Boleto adicionado');
         }
 
-        return $this->getBlade()->make('BoletoHtmlRender::boleto', [
+        return $this->getBlade()->make('BoletoHtmlRender::' . $this->getViewScript(), [
             'boletos' => $this->boleto,
             'css' => $this->writeCss(),
             'imprimir_carregamento' => (bool) $this->print,
@@ -201,5 +206,18 @@ class Html implements HtmlContract
             'imprimir_carregamento' => (bool) $this->print,
             'mostrar_instrucoes' => (bool) $this->showInstrucoes,
         ])->render();
-    }
+	}
+	
+	public function getViewScript()
+	{
+		if (empty($this->viewScript)) {
+			$this->viewScript = 'boleto';
+		}
+		return $this->viewScript;
+	}
+
+	public function setViewScript($str)
+	{
+		$this->viewScript = mb_strtolower($str);
+	}
 }

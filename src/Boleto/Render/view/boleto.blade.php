@@ -34,7 +34,7 @@
         @endif
 
         <div class="linha-pontilhada" style="margin-bottom: 20px;">Recibo do pagador</div>
-
+<!--
         <div class="info-empresa">
             @if ($logo)
                 <div style="display: inline-block;">
@@ -48,7 +48,8 @@
                 <div>{{ $beneficiario['endereco2'] }}</div>
             </div>
         </div>
-        <br>
+		<br>
+-->
 
         <table class="table-boleto" cellpadding="0" cellspacing="0" border="0">
             <tbody>

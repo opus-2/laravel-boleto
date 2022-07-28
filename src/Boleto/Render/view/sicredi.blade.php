@@ -231,7 +231,7 @@
 					<div style="padding-left:0; padding-top:1mm; width: 11.3cm; float:left;">{!! $codigo_barras !!}</div>
 				<?php endif; ?>
 				<div>
-                    <div class="titulo" style="text-align:center; height: 1.3cm; width: 6cm; float:right;"><?php echo str_repeat("&#9472;",14); ?>&nbsp;Autenticação mecânica&nbsp;<?php echo str_repeat("&#9472;",14); ?></div>
+                    <div class="titulo" style="text-align:center; height: 1.3cm; width: 6cm; float:right;"><?php echo str_repeat("&#9472;",10); ?>&nbsp;Autenticação mecânica&nbsp;<?php echo str_repeat("&#9472;",10); ?></div>
                 </div>
 			</tr>
             </tbody>
